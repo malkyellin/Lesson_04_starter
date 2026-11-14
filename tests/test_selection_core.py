@@ -88,3 +88,37 @@ def test_only_event_client_can_submit_selection(sample_event):
         )
 
     assert exc.value.code == "FORBIDDEN"
+@pytest.mark.req("REQ-SEL-02")
+def test_media_from_another_event_is_rejected(sample_event):
+    with pytest.raises(selection_core.SelectionError) as err:
+        selection_core.submit_selection(
+            sample_event,
+            "cli_100",
+            ["med_9"],
+            ["add_to_album"],
+        )
+
+    assert err.value.code == "MEDIA_NOT_IN_EVENT"
+@pytest.mark.req("REQ-SEL-01")
+def test_empty_selection_is_rejected(sample_event):
+    with pytest.raises(selection_core.SelectionError) as exc:
+        selection_core.submit_selection(
+            sample_event,
+            "cli_100",
+            [],
+            ["add_to_album"]
+        )
+
+    assert exc.value.code == "SELECTION_EMPTY"
+
+@pytest.mark.req("REQ-SEL-03")
+def test_disabled_service_is_rejected(sample_event):
+    with pytest.raises(selection_core.SelectionError) as exc:
+        selection_core.submit_selection(
+            sample_event,
+            "cli_100",
+            ["med_1"],
+            ["print_10x15"]
+        )
+
+    assert exc.value.code == "SERVICE_NOT_AVAILABLE"
